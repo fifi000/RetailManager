@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace RMDesktopUI.ViewModels
 {
@@ -14,7 +15,22 @@ namespace RMDesktopUI.ViewModels
         private string _userName;
         private string _userPassword;
         private IAPIHelper _apiHelper;
+        private string _errorMessage;
 
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set 
+            { 
+                _errorMessage = value;
+                NotifyOfPropertyChange(() => ErrorMessage);
+                NotifyOfPropertyChange(() => IsErrorVisible);
+            }
+        }
+        public bool IsErrorVisible
+        {
+            get => ErrorMessage?.Length > 0;
+        }
         public string UserName 
         {
             get { return _userName; }
@@ -61,12 +77,14 @@ namespace RMDesktopUI.ViewModels
         {
             try
             {
+                ErrorMessage = "";
                 var result = await _apiHelper.Authenticate(UserName, UserPassword);
+                
+                MessageBox.Show("You logged in!");
             }
             catch (Exception ex)
             {
-
-                throw;
+                ErrorMessage = ex.Message;
             }
         }
 
