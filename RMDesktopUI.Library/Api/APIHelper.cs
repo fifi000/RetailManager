@@ -7,16 +7,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using RMDesktopUI.Models;
+using RMDesktopUI.Library.Models;
 
-namespace RMDesktopUI.Helpers
+namespace RMDesktopUI.Library.Api
 {
     public class APIHelper : IAPIHelper
     {
         private HttpClient apiClient;
+        private ILoggedInUserModel _loggedInUser;
 
-        public APIHelper()
+        public APIHelper(ILoggedInUserModel loggedInUser)
         {
             InitializeClient();
+            _loggedInUser = loggedInUser;
         }
 
         private void InitializeClient()
@@ -46,6 +49,36 @@ namespace RMDesktopUI.Helpers
                     var result = await response.Content.ReadAsAsync<AuthenticatedUser>();
 
                     return result;
+                }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
+        }
+
+        public async Task GetLoggedInUserInfo(string token)
+        {
+
+            apiClient.DefaultRequestHeaders.Accept.Clear();
+            apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            
+            apiClient.DefaultRequestHeaders.Clear();
+            apiClient.DefaultRequestHeaders.Add("Authorization", $"bearer {token}");
+            
+            using (HttpResponseMessage response = await apiClient.GetAsync("/Api/User"))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsAsync<LoggedInUserModel>();
+
+                    _loggedInUser.Id = result.Id;
+                    _loggedInUser.FirstName = result.FirstName;
+                    _loggedInUser.LastName = result.LastName;
+                    _loggedInUser.EmailAddress = result.EmailAddress;
+                    _loggedInUser.CreatedDate = result.CreatedDate;
+                    _loggedInUser.Token = token;
+                    
                 }
                 else
                 {
