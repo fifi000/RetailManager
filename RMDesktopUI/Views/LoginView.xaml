@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RMDesktopUI.Views"
              mc:Ignorable="d" 
-             Background="Aquamarine" FontSize="24"
+             Background="White" FontSize="24"
              d:DesignHeight="425" d:DesignWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -35,11 +35,13 @@
 
         <!-- Username row -->
         <TextBlock Grid.Row="2" Grid.Column="1" Text="Username: " Margin="0 0 5 10"/>
-        <TextBox x:Name="UserName" Grid.Row="2" Grid.Column="2" MinWidth="250" Margin="0 0 0 10"/>
+        <TextBox x:Name="UserName" Grid.Row="2" Grid.Column="2" 
+                 MinWidth="250" Margin="0 0 0 10"/>
 
         <!-- Password Row -->
         <TextBlock Grid.Row="3" Grid.Column="1" Text="Password: " Margin="0 0 0 10"/>
-        <PasswordBox x:Name="UserPassword" Grid.Row="3" Grid.Column="2" MinWidth="150" Margin="0 0 0 20"/>
+        <PasswordBox x:Name="UserPassword" Grid.Row="3" Grid.Column="2" 
+                     MinWidth="150" Margin="0 0 0 20"/>
         
         <!-- Login Row -->
         <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Content="Log in" 

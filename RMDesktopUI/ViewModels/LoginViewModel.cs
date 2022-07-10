@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.EventModels;
 using RMDesktopUI.Helpers;
 using RMDesktopUI.Library.Api;
 using System;
@@ -13,10 +14,12 @@ namespace RMDesktopUI.ViewModels
 {
     public class LoginViewModel : Screen
     {
-        private string _userName;
-        private string _userPassword;
+        // TODO - delete temp user name and password
+        private string _userName = "filipkociok@gmail.com";
+        private string _userPassword = "Pwd1234.";
         private IAPIHelper _apiHelper;
         private string _errorMessage;
+        private IEventAggregator _events;
 
         public string ErrorMessage
         {
@@ -53,9 +56,10 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        public LoginViewModel(IAPIHelper apiHelper)
+        public LoginViewModel(IAPIHelper apiHelper, IEventAggregator events)
         {
             _apiHelper = apiHelper;
+            _events = events;
         }
 
         public bool CanLogIn
@@ -83,8 +87,9 @@ namespace RMDesktopUI.ViewModels
 
                 // Capture more information about the user
                 await _apiHelper.GetLoggedInUserInfo(result.Access_Token);
-                
-                MessageBox.Show("You logged in!");
+
+                await _events.PublishOnUIThreadAsync(new LogOnEvent());
+
             }
             catch (Exception ex)
             {

@@ -1,4 +1,6 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,21 +12,43 @@ namespace RMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
-        private BindingList<string> _products;
-        private BindingList<string> _cart;
-        private string _itemQuantity;
+        private BindingList<ProductModel> _products;
+        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+        private ProductModel _selectedProduct;     
+        private int _itemQuantity = 1;
+        private readonly IProductEndpoint _productEndpoint;
 
-        public BindingList<string> Products
+        public SalesViewModel(IProductEndpoint productEndpoint)
+        {
+            _productEndpoint = productEndpoint;
+        }
+
+        protected override async void OnViewLoaded(object view)
+        {
+            var products = await _productEndpoint.GetAll();
+            Products = new BindingList<ProductModel>(products);
+        }
+
+        public BindingList<ProductModel> Products
         {
             get { return _products; }
-            set 
-            { 
+            set
+            {
                 _products = value;
                 NotifyOfPropertyChange(() => Products);
             }
         }
-
-        public BindingList<string> Cart
+        public ProductModel SelectedProduct
+        {
+            get { return _selectedProduct; }
+            set 
+            { 
+                _selectedProduct = value;
+                NotifyOfPropertyChange(() => SelectedProduct);
+                NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+        public BindingList<CartItemModel> Cart
         {
             get { return _cart; }
             set 
@@ -34,25 +58,30 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        public string ItemQuantity
+        public int ItemQuantity
         {
             get { return _itemQuantity; }
             set 
             { 
                 _itemQuantity = value; 
                 NotifyOfPropertyChange(() => ItemQuantity);
+                NotifyOfPropertyChange(() => CanAddToCart);
             }
         }
-
         public string SubTotal 
         {
             get
             {
-                // TODO replace with calculation
-                return "$0.00";
+                decimal subTotal = 0;
+
+                foreach (var item in Cart)
+                {
+                    subTotal += item.Product.RetailPrice * item.QuantityInCart;
+                }
+                
+                return $"{subTotal:C2}";
             }
         }
-
         public string Tax
         {
             get
@@ -61,7 +90,6 @@ namespace RMDesktopUI.ViewModels
                 return "$0.00";
             }
         }
-
         public string Total
         {
             get
@@ -71,25 +99,44 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-
         public bool CanAddToCart 
         {
             get
             {
                 bool output = false;
 
-                // Make sure something is selected
-                // Make sure there is an item quantity
+                if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity)
+                {
+                    output = true;
+                }
 
                 return output;
             }
         }
-
         public void AddToCart()
         {
+            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
+            if (existingItem != null)
+            {
+                existingItem.QuantityInCart += ItemQuantity;
+                Cart.ResetItem(Cart.IndexOf(existingItem));
+            }
+            else
+            {
+                CartItemModel item = new CartItemModel
+                {
+                    Product = SelectedProduct,
+                    QuantityInCart = ItemQuantity
+                };
+                Cart.Add(item);
+            }
 
+            SelectedProduct.QuantityInStock -= ItemQuantity;
+            ItemQuantity = 1;
+
+            NotifyOfPropertyChange(() => SubTotal);
+       
         }
-
         public bool CanRemoveFormCart
         {
             get
@@ -101,12 +148,10 @@ namespace RMDesktopUI.ViewModels
                 return output;
             }
         }
-
         public void RemoveFromCart()
         {
-
+            NotifyOfPropertyChange(() => SubTotal);
         }
-
         public bool CanCheckOut
         {
             get
@@ -118,7 +163,6 @@ namespace RMDesktopUI.ViewModels
                 return output;
             }
         }
-
         public void CheckOut()
         {
 

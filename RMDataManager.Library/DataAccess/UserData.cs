@@ -20,7 +20,7 @@ namespace RMDataManager.Library.DataAccess
 
             // TODO defaultConnection --> TestConnection 
             // TODO in Web.config added TestConnection
-            output = sql.LoadData<UserModel, dynamic>("dbo.spUserLookup", p, "RMData");
+            output = sql.LoadData<UserModel, dynamic>("dbo.spUser_Lookup", p, "RMData");
 
             return output;
         }
