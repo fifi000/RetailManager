@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,12 @@ namespace RMDesktopUI.ViewModels
         private ProductModel _selectedProduct;     
         private int _itemQuantity = 1;
         private readonly IProductEndpoint _productEndpoint;
+        private readonly IConfigHelper _config;
 
-        public SalesViewModel(IProductEndpoint productEndpoint)
+        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper config)
         {
             _productEndpoint = productEndpoint;
+            _config = config;
         }
 
         protected override async void OnViewLoaded(object view)
@@ -72,30 +75,21 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                decimal subTotal = 0;
-
-                foreach (var item in Cart)
-                {
-                    subTotal += item.Product.RetailPrice * item.QuantityInCart;
-                }
-                
-                return $"{subTotal:C2}";
+                return GetSubTotal().ToString("C");
             }
         }
         public string Tax
         {
             get
             {
-                // TODO replace with calculation
-                return "$0.00";
+                return GetTax().ToString("C");
             }
         }
         public string Total
         {
             get
             {
-                // TODO replace with calculation
-                return "$0.00";
+                return (GetSubTotal() + GetTax()).ToString("C");
             }
         }
 
@@ -135,7 +129,8 @@ namespace RMDesktopUI.ViewModels
             ItemQuantity = 1;
 
             NotifyOfPropertyChange(() => SubTotal);
-       
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
         }
         public bool CanRemoveFormCart
         {
@@ -151,6 +146,8 @@ namespace RMDesktopUI.ViewModels
         public void RemoveFromCart()
         {
             NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
         }
         public bool CanCheckOut
         {
@@ -168,6 +165,32 @@ namespace RMDesktopUI.ViewModels
 
         }
 
+        private decimal GetSubTotal()
+        {
+            decimal subTotal = 0;
+
+            foreach (var item in Cart)
+            {
+                subTotal += item.Product.RetailPrice * item.QuantityInCart;
+            }
+
+            return subTotal;
+        }
+        private decimal GetTax()
+        {
+            decimal taxPercent = (decimal)_config.GetTaxRate() / 100;
+            decimal tax = 0;
+
+            foreach (var item in Cart)
+            {
+                if (item.Product.IsTaxable)
+                {
+                    tax += item.Product.RetailPrice * item.QuantityInCart * taxPercent;
+                }
+            }
+
+            return tax;
+        }
 
     }
 }
