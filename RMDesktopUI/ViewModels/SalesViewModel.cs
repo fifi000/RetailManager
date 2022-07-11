@@ -28,8 +28,23 @@ namespace RMDesktopUI.ViewModels
             _saleEndpoint = saleEndpoint;
             _config = config;
         }
+        internal async Task ResetSalesViewModel()
+        {
+            Cart = new BindingList<CartItemModel>();
+            await LoadProducts();
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
+        }
 
         protected override async void OnViewLoaded(object view)
+        {
+            base.OnViewLoaded(view);
+            await LoadProducts();
+        }
+
+        private async Task LoadProducts()
         {
             var products = await _productEndpoint.GetAll();
             Products = new BindingList<ProductModel>(products);
@@ -178,8 +193,6 @@ namespace RMDesktopUI.ViewModels
         }
         public async Task CheckOut()
         {
-            // Create a sales model and post to the api
-
             SaleModel sale = new SaleModel();
 
             foreach (var item in Cart)
@@ -193,6 +206,7 @@ namespace RMDesktopUI.ViewModels
 
             await _saleEndpoint.PostSale(sale);
 
+            await ResetSalesViewModel();
         }
 
         private decimal GetSubTotal()

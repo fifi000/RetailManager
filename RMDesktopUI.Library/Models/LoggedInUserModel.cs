@@ -13,6 +13,16 @@ namespace RMDesktopUI.Library.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string EmailAddress { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
+
+        public void LogOffUser()
+        {
+            Token = String.Empty;
+            Id = String.Empty;
+            FirstName = String.Empty;
+            LastName = String.Empty;
+            EmailAddress = String.Empty;
+            CreatedDate = null;
+        }
     }
 }
