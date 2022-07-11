@@ -15,7 +15,8 @@ namespace RMDesktopUI.ViewModels
     {
         private BindingList<ProductModel> _products;
         private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
-        private ProductModel _selectedProduct;     
+        private ProductModel _selectedProduct;
+        private CartItemModel _selectedCartItem;
         private int _itemQuantity = 1;
         private readonly IProductEndpoint _productEndpoint;
         private readonly ISaleEndpoint _saleEndpoint;
@@ -51,6 +52,16 @@ namespace RMDesktopUI.ViewModels
                 _selectedProduct = value;
                 NotifyOfPropertyChange(() => SelectedProduct);
                 NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+        public CartItemModel SelectedCartItem 
+        {
+            get => _selectedCartItem;
+            set
+            {
+                _selectedCartItem = value;
+                NotifyOfPropertyChange(() => SelectedCartItem);
+                NotifyOfPropertyChange(() => CanRemoveFromCart);
             }
         }
         public BindingList<CartItemModel> Cart
@@ -136,22 +147,26 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckOut);
         }
-        public bool CanRemoveFormCart
+        public bool CanRemoveFromCart
         {
             get
             {
-                bool output = false;
-
-                // Make sure something is selected
-
-                return output;
+                return SelectedCartItem != null;
             }
         }
         public void RemoveFromCart()
         {
+            CartItemModel removedItem = SelectedCartItem;
+
+            Cart.Remove(removedItem);
+            removedItem.Product.QuantityInStock += removedItem.QuantityInCart;
+
+            Products.ResetItem(Products.IndexOf(removedItem.Product));
+
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanAddToCart);
             NotifyOfPropertyChange(() => CanCheckOut);
         }
         public bool CanCheckOut
