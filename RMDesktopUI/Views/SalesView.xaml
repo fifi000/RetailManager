@@ -33,11 +33,28 @@
 
         <!-- Column 0 -->
         <TextBlock Text="Items" Grid.Row="1" Grid.Column="0"/>
-        <ListBox x:Name="Products" Grid.Row="2" Grid.Column="0" 
+        <ListBox x:Name="Products" Grid.Row="2" Grid.Column="0"  
                  MinHeight="200" MinWidth="150" SelectedItem="{Binding SelectedProduct}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding ProductName}"/>
+                    <StackPanel Orientation="Vertical" Margin="0 0 0 5">
+                        <TextBlock Text="{Binding ProductName}" VerticalAlignment="Top"/>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontSize" Value="14"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            <StackPanel Orientation="Horizontal" Margin="0 0 10 0">
+                                <TextBlock Text="Price= "/>
+                                <TextBlock Text="{Binding RetailPrice, StringFormat=C}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Quantity= "/>
+                                <TextBlock Text="{Binding QuantityInStock}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

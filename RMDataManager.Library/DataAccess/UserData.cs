@@ -16,11 +16,9 @@ namespace RMDataManager.Library.DataAccess
             List<UserModel> output;
             SqlDataAccess sql = new SqlDataAccess();
 
-            var p = new { Id = Id };
-
             // TODO defaultConnection --> TestConnection 
             // TODO in Web.config added TestConnection
-            output = sql.LoadData<UserModel, dynamic>("dbo.spUser_Lookup", p, "RMData");
+            output = sql.LoadData<UserModel, dynamic>("dbo.spUser_Lookup", new { Id }, "RMData");
 
             return output;
         }

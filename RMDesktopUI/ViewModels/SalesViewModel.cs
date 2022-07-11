@@ -128,6 +128,7 @@ namespace RMDesktopUI.ViewModels
             SelectedProduct.QuantityInStock -= ItemQuantity;
             ItemQuantity = 1;
 
+            Products.ResetItem(Products.IndexOf(SelectedProduct));
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
