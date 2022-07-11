@@ -19,6 +19,7 @@ namespace RMDesktopUI.ViewModels
         private string _userPassword = "Pwd1234.";
         private IAPIHelper _apiHelper;
         private string _errorMessage;
+        private bool _isLoggingIn = false;
         private IEventAggregator _events;
 
         public string ErrorMessage
@@ -35,6 +36,16 @@ namespace RMDesktopUI.ViewModels
         {
             get => ErrorMessage?.Length > 0;
         }
+        public bool IsLoggingIn 
+        { 
+            get => _isLoggingIn;
+            set
+            {
+                _isLoggingIn = value;
+                NotifyOfPropertyChange(() => IsLoggingIn);
+            }
+        }
+
         public string UserName 
         {
             get { return _userName; }
@@ -66,15 +77,9 @@ namespace RMDesktopUI.ViewModels
         {
             get 
             {
-                bool output = false;
 
-                if (String.IsNullOrEmpty(UserName) == false && 
-                    String.IsNullOrEmpty(UserPassword) == false)
-                {
-                    output = true;
-                }
-
-                return output;
+                return (String.IsNullOrEmpty(UserName) == false && 
+                    String.IsNullOrEmpty(UserPassword) == false);
             }
             
         }
@@ -84,6 +89,8 @@ namespace RMDesktopUI.ViewModels
             try
             {
                 ErrorMessage = "";
+                IsLoggingIn = true;
+
                 var result = await _apiHelper.Authenticate(UserName, UserPassword);
 
                 // Capture more information about the user
@@ -95,6 +102,10 @@ namespace RMDesktopUI.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                IsLoggingIn = false;
             }
         }
 
