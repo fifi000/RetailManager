@@ -17,7 +17,9 @@
             </MenuItem>
         </Menu>
         <Grid>
-            <ContentControl x:Name="ActiveItem" Margin="20 5 20 20"/>
+            <ScrollViewer>
+                <ContentControl x:Name="ActiveItem" Margin="20 5 20 20"/>
+            </ScrollViewer>
         </Grid>
     </DockPanel>
 </Window>

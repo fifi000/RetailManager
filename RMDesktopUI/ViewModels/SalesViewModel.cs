@@ -18,11 +18,13 @@ namespace RMDesktopUI.ViewModels
         private ProductModel _selectedProduct;     
         private int _itemQuantity = 1;
         private readonly IProductEndpoint _productEndpoint;
+        private readonly ISaleEndpoint _saleEndpoint;
         private readonly IConfigHelper _config;
 
-        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper config)
+        public SalesViewModel(IProductEndpoint productEndpoint, ISaleEndpoint saleEndpoint, IConfigHelper config)
         {
             _productEndpoint = productEndpoint;
+            _saleEndpoint = saleEndpoint;
             _config = config;
         }
 
@@ -132,6 +134,7 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
         public bool CanRemoveFormCart
         {
@@ -149,20 +152,31 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
         public bool CanCheckOut
         {
             get
             {
-                bool output = false;
-
-                // Make sure something is in the cart
-
-                return output;
+                return Cart.Count > 0;
             }
         }
-        public void CheckOut()
+        public async Task CheckOut()
         {
+            // Create a sales model and post to the api
+
+            SaleModel sale = new SaleModel();
+
+            foreach (var item in Cart)
+            {
+                sale.SaleDetails.Add(new SaleDetailModel
+                {
+                    ProductId = item.Product.Id,
+                    Quantity = item.QuantityInCart
+                });
+            }
+
+            await _saleEndpoint.PostSale(sale);
 
         }
 

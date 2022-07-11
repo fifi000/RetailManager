@@ -68,7 +68,8 @@ namespace RMDesktopUI.ViewModels
             {
                 bool output = false;
 
-                if (String.IsNullOrEmpty(UserName) == false && String.IsNullOrEmpty(UserPassword) == false)
+                if (String.IsNullOrEmpty(UserName) == false && 
+                    String.IsNullOrEmpty(UserPassword) == false)
                 {
                     output = true;
                 }
