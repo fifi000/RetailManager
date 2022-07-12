@@ -13,8 +13,6 @@ namespace RMDataManager.Library.DataAccess
         public void SaveSales(SaleModel saleInfo, string cashierId)
         {
             // TODO - make this code better (eg create a method that calculates the tax and total)
-            SqlDataAccess sql = new SqlDataAccess();
-
 
             // fill in the sale detail db models 
             List<SaleDetailDBModel> details = new List<SaleDetailDBModel>();
@@ -60,16 +58,29 @@ namespace RMDataManager.Library.DataAccess
             };
             sale.Total = sale.SubTotal + sale.Tax;
 
-            // Save sale record
-            // get the sale id
-            sale.Id = sql.LoadData<int, object>("dbo.spSale_Insert", sale, "RMData").First();
-
-            // Finish filling details data - sale id
-            // Save sale details
-            foreach (var detail in details)
+            using (SqlDataAccess sql = new SqlDataAccess())
             {
-                detail.SaleId = sale.Id;
-                sql.SaveData("dbo.spSaleDetail_Insert", detail, "RMData");
+                try
+                {
+                    sql.StartTransaction("RMData");
+
+                    // Save sale record
+                    // get the sale id
+                    sale.Id = sql.LoadDataInTransaction<int, object>("dbo.spSale_Insert", sale).First();
+
+                    // Finish filling details data - sale id
+                    // Save sale details
+                    foreach (var detail in details)
+                    {
+                        detail.SaleId = sale.Id;
+                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", detail);
+                    }
+                }
+                catch
+                {
+                    sql.RollBackTransaction();
+                    throw new OperationCanceledException();
+                }
             }
         }
     }
