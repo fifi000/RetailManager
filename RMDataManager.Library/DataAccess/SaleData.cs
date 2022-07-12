@@ -10,7 +10,7 @@ namespace RMDataManager.Library.DataAccess
 {
     public class SaleData
     {
-        public void SaveSales(SaleModel saleInfo, string cashierId)
+        public void SaveSale(SaleModel saleInfo, string cashierId)
         {
             // TODO - make this code better (eg create a method that calculates the tax and total)
 
@@ -82,6 +82,15 @@ namespace RMDataManager.Library.DataAccess
                     throw new OperationCanceledException();
                 }
             }
+        }
+
+        public List<SaleReportModel> GetSaleReports()
+        {
+            SqlDataAccess sql = new SqlDataAccess();
+
+            var output = sql.LoadData<SaleReportModel, object>("dbo.spSale_SaleReport", new { }, "RMData");
+
+            return output;
         }
     }
 }
