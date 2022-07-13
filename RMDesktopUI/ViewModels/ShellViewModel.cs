@@ -43,7 +43,6 @@ namespace RMDesktopUI.ViewModels
         {
             _loggedInUser.ResetUserModel();
             _apiHelper.LogOffUser();
-            await _salesVM.ResetSalesViewModel();
             await ActivateItemAsync(IoC.Get<LoginViewModel>());
             NotifyOfPropertyChange(() => IsLoggedIn);
         }

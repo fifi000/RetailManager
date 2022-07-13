@@ -5,9 +5,11 @@ using RMDesktopUI.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace RMDesktopUI.ViewModels
 {
@@ -21,14 +23,22 @@ namespace RMDesktopUI.ViewModels
         private readonly IProductEndpoint _productEndpoint;
         private readonly ISaleEndpoint _saleEndpoint;
         private readonly IConfigHelper _config;
+        private readonly IWindowManager _window;
+        private readonly StatusInfoViewModel _msgBox;
 
-        public SalesViewModel(IProductEndpoint productEndpoint, ISaleEndpoint saleEndpoint, IConfigHelper config)
+        public SalesViewModel(IProductEndpoint productEndpoint,
+                              ISaleEndpoint saleEndpoint,
+                              IConfigHelper config,
+                              StatusInfoViewModel msgBox,
+                              IWindowManager window)
         {
             _productEndpoint = productEndpoint;
             _saleEndpoint = saleEndpoint;
             _config = config;
+            _msgBox = msgBox;
+            _window = window;
         }
-        internal async Task ResetSalesViewModel()
+        private async Task ResetSalesViewModel()
         {
             Cart = new BindingList<CartItemModel>();
             await LoadProducts();
@@ -41,7 +51,31 @@ namespace RMDesktopUI.ViewModels
         protected override async void OnViewLoaded(object view)
         {
             base.OnViewLoaded(view);
-            await LoadProducts();
+            try
+            {
+                await LoadProducts();
+            }
+            catch (Exception ex)
+            {
+                dynamic settings = new ExpandoObject();
+                settings.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                settings.ResizeMode = ResizeMode.NoResize;
+
+                if (ex.Message == "Unauthorized")
+                {
+                    _msgBox.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form.");
+                    await _window.ShowDialogAsync(_msgBox, settings: settings);
+
+                }
+                else
+                {
+                    _msgBox.UpdateMessage("Fatal Exception", ex.Message);
+                    await _window.ShowDialogAsync(_msgBox, settings: settings);
+
+                }
+
+                await TryCloseAsync();
+            }
         }
 
         private async Task LoadProducts()
