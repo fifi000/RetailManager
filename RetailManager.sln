@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{35
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{8EB41932-C069-4B88-9134-D27158CB17DF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DesktopUI", "DesktopUI", "{CFBF1580-A669-4267-B68E-E9BA75FDE384}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{CFBF1580-A669-4267-B68E-E9BA75FDE384}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

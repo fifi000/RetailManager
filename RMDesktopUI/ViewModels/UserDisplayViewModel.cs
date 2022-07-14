@@ -18,6 +18,10 @@ namespace RMDesktopUI.ViewModels
         private readonly IWindowManager _window;
         private readonly IUserEndpoint _userEndpoint;
         private BindingList<UserModel> _users;
+        private UserModel _selectedUser;
+        private BindingList<string> _selectedUserRoles = new BindingList<string>();
+        private List<string> _roles;
+        private BindingList<string> _availableRoles;
 
         public UserDisplayViewModel(
             StatusInfoViewModel msgBox,
@@ -38,6 +42,49 @@ namespace RMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => Users);
             }
         }
+        public UserModel SelectedUser
+        {
+            get { return _selectedUser; }
+            set 
+            { 
+                _selectedUser = value;
+                SelectedUserRoles = new BindingList<string>(value.Roles.Select(x => x.Value).ToList());
+                AvailableRoles = new BindingList<string>(AllRoles.Except(SelectedUserRoles).ToList());
+                NotifyOfPropertyChange(() => SelectedUser);
+                NotifyOfPropertyChange(() => SelectedUserName);
+            }
+        }
+        public string SelectedUserName 
+        { 
+            get => SelectedUser?.EmailAddress; 
+        }
+        public BindingList<string> SelectedUserRoles
+        {
+            get { return _selectedUserRoles; }
+            set 
+            {
+                _selectedUserRoles = value;
+                NotifyOfPropertyChange(() => SelectedUserRoles);
+            }
+        }
+        public BindingList<string> AvailableRoles 
+        {
+            get 
+            {
+                return _availableRoles;
+            }
+            set
+            {
+                _availableRoles = value;
+                NotifyOfPropertyChange(() => AvailableRoles);
+            }
+        }
+        public List<string> AllRoles
+        {
+            get { return _roles; }
+            set { _roles = value; }
+        }
+        public string SelectedUserRole { get; set; }
 
         protected override async void OnViewLoaded(object view)
         {
@@ -45,6 +92,7 @@ namespace RMDesktopUI.ViewModels
             try
             {
                 await LoadUsers();
+                await LoadRoles();
             }
             catch (Exception ex)
             {
@@ -73,6 +121,42 @@ namespace RMDesktopUI.ViewModels
         {
             var users = await _userEndpoint.GetAll();
             Users = new BindingList<UserModel>(users);
+        }
+        private async Task LoadRoles()
+        {
+            var rolesDict = await _userEndpoint.GetAllRoles();
+            AllRoles = rolesDict.Select(x => x.Value).ToList();
+        }
+
+        public async void AddSelectedRole()
+        {
+            if (String.IsNullOrWhiteSpace(SelectedUserRole) == false)
+            {
+                var role = SelectedUserRole;
+
+                await _userEndpoint.AddUserToRole(SelectedUser.Id, role); 
+
+                SelectedUserRoles.Add(role);
+                AvailableRoles.Remove(role);
+
+                NotifyOfPropertyChange(() => SelectedUserRoles);
+                NotifyOfPropertyChange(() => AvailableRoles);
+            }
+        }
+        public async void RemoveSelectedRole()
+        {
+            if (String.IsNullOrWhiteSpace(SelectedUserRole) == false)
+            {
+                var role = SelectedUserRole;
+
+                await _userEndpoint.RemoveUserFromRole(SelectedUser.Id, role);
+
+                SelectedUserRoles.Remove(role);
+                AvailableRoles.Add(role);
+
+                NotifyOfPropertyChange(() => SelectedUserRoles);
+                NotifyOfPropertyChange(() => AvailableRoles);
+            }
         }
 
     }
