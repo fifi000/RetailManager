@@ -40,7 +40,7 @@ namespace RMApi.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        [Route("Api/User/Admin/GetAllUsers")]
+        [Route("Admin/GetAllUsers")]
         public List<ApplicationUserModel> GetAllUsers()
         {
             var output = new List<ApplicationUserModel>();
@@ -74,7 +74,7 @@ namespace RMApi.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        [Route("Api/User/Admin/GetAllRoles")]
+        [Route("Admin/GetAllRoles")]
         public Dictionary<string, string> GetAllRols()
         {
             var roles = _context.Roles.ToDictionary(x => x.Id, x => x.Name);
@@ -84,7 +84,7 @@ namespace RMApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        [Route("Api/User/Admin/AddRole")]
+        [Route("Admin/AddRole")]
         public async Task AddRole(UserRolePairModel pair)
         {
             var userId = await _manager.FindByIdAsync(pair.UserId);
@@ -94,7 +94,7 @@ namespace RMApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        [Route("Api/User/Admin/RemoveRole")]
+        [Route("Admin/RemoveRole")]
         public async Task RemoveRole(UserRolePairModel pair)
         {
             var userId = await _manager.FindByIdAsync(pair.UserId);
