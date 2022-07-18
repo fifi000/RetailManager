@@ -16,7 +16,7 @@ namespace RMDesktopUI
 {
     public class Bootstrapper : BootstrapperBase
     {
-        private SimpleContainer _container = new SimpleContainer();
+        private readonly SimpleContainer _container = new SimpleContainer();
 
         public Bootstrapper()
         {
@@ -52,9 +52,9 @@ namespace RMDesktopUI
                     viewModelType, viewModelType.ToString(), viewModelType));
         }
 
-        protected override void OnStartup(object sender, StartupEventArgs e)
+        protected override async void OnStartup(object sender, StartupEventArgs e)
         {
-            DisplayRootViewFor<ShellViewModel>();
+            await DisplayRootViewForAsync<ShellViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)
