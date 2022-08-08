@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace RMDataManager.Library.Internal.DataAccess
 {
-    internal class SqlDataAccess : IDisposable
+    public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
         public SqlDataAccess(IConfiguration config)
         {
@@ -64,7 +64,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 
         public void SaveDataInTransaction<T>(string storedProcedure, T parameters)
         {
-            _connection.Execute(storedProcedure, parameters, 
+            _connection.Execute(storedProcedure, parameters,
                 commandType: CommandType.StoredProcedure, transaction: _transaction);
         }
         public List<T> LoadDataInTransaction<T, U>(string storedProcedure, U parameters)

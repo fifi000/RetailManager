@@ -10,22 +10,21 @@ using System.Threading.Tasks;
 
 namespace RMDataManager.Library.DataAccess
 {
-    public class UserData
+    public class UserData : IUserData
     {
-        private readonly IConfiguration _config;
+        private readonly ISqlDataAccess _sql;
 
-        public UserData(IConfiguration config)
+        public UserData(ISqlDataAccess sql)
         {
-            _config = config;
+            _sql = sql;
         }
-        public List<UserModel> GetUserById(string Id) 
+        public List<UserModel> GetUserById(string Id)
         {
             List<UserModel> output;
-            SqlDataAccess sql = new SqlDataAccess(_config);
 
             // TODO defaultConnection --> TestConnection 
             // TODO in Web.config added TestConnection
-            output = sql.LoadData<UserModel, dynamic>("dbo.spUser_Lookup", new { Id }, "RMData");
+            output = _sql.LoadData<UserModel, dynamic>("dbo.spUser_Lookup", new { Id }, "RMData");
 
             return output;
         }

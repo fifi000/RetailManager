@@ -9,26 +9,23 @@ using System.Threading.Tasks;
 
 namespace RMDataManager.Library.DataAccess
 {
-    public class InventoryData
+    public class InventoryData : IInventoryData
     {
-        private readonly IConfiguration _config;
+        private readonly ISqlDataAccess _sql;
 
-        public InventoryData(IConfiguration config)
+        public InventoryData(ISqlDataAccess sql)
         {
-            _config = config;
+            _sql = sql;
         }
         public List<InventoryModel> GetInventory()
         {
-            SqlDataAccess sql = new SqlDataAccess(_config);
-
-            var output = sql.LoadData<InventoryModel, dynamic>("dbo.spInventory_GetAll", new { }, "RMDAta");
+            var output = _sql.LoadData<InventoryModel, dynamic>("dbo.spInventory_GetAll", new { }, "RMDAta");
 
             return output;
         }
 
         public void SaveInventoryRecord(InventoryModel inventory)
         {
-            SqlDataAccess sql = new SqlDataAccess(_config);
             var parameter = new
             {
                 ProductId = inventory.ProductId,
@@ -36,7 +33,7 @@ namespace RMDataManager.Library.DataAccess
                 PurchasePrice = inventory.PurchasePrice,
                 PurchaseDate = inventory.PurchaseDate
             };
-            sql.SaveData("dbo.spInventory_Insert", parameter, "RMData");
+            _sql.SaveData("dbo.spInventory_Insert", parameter, "RMData");
         }
     }
 }
